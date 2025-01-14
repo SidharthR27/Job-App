@@ -26,6 +26,3 @@ jobs:
         env:
           my_password: ${{ secrets.my_password }}
         run: python main.py
-          
-      
-      
