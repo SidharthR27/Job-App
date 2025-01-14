@@ -20,7 +20,7 @@ response2 = requests.get(url="https://technopark.org/api/paginated-jobs?page=2&s
 all_jobs = response1.json()["data"] + response2.json()["data"]
 url = "https://www.geeksforgeeks.org/python-datetime-timedelta-function/"
 
-markdown_message = f"# Here are all the jobs posted on Technopark Trivandrum yesterday ({yesterday.strftime("%d-%m-%Y")}) 💁‍♀️: \n"
+markdown_message = f"# Here are all the jobs posted on Technopark Trivandrum yesterday ({yesterday.strftime('%d-%m-%Y')}) 💁‍♀️: \n"
 for job in all_jobs:
     if job["posted_date"] == formatted_date:
         new_jobs = True
