@@ -8,6 +8,7 @@ import markdown
 from email.utils import formataddr
 
 today = datetime.now()
+print(today)
 yesterday = today - timedelta(days=1)
 formatted_date = yesterday.strftime("%Y-%m-%d")
 new_jobs = False
