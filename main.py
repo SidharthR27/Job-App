@@ -6,8 +6,11 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import markdown
 from email.utils import formataddr
-
+import time
 from bs4 import BeautifulSoup
+import google.generativeai as genai
+from google.ai.generativelanguage_v1beta.types import content
+import json
 
 today = datetime.now()
 print(today)
@@ -38,8 +41,8 @@ for job in all_jobs:
 
 
 # AI Suggestions
-markdown_message += "<div> <br><br><br> </div>"
-markdown_message += f"# AI suggestions personalised for you 👾:\n\n"
+markdown_message += "<div> <br><br> </div>"
+markdown_message += f"# AI suggestions personalised for you :\n\n"
 job_descriptions = []
 
 for job_url in job_urls:
@@ -47,18 +50,21 @@ for job_url in job_urls:
     soup = BeautifulSoup(response.content, "html.parser")
     job_div = soup.select_one("#app > div.relative.min-h-screen.w-full.pt-20 > div > div.mb-10.flex.flex-col.bg-white.shadow-2xl")
     job_desc = job_div.getText()
-    job_descriptions.append(job_desc)
+    relevant_parts = " ".join(job_desc.split()[:400]) 
+    job_descriptions.append(relevant_parts)
 
 # print(job_descriptions)
 
-import google.generativeai as genai
-from google.ai.generativelanguage_v1beta.types import content
-import json
 
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
 # Create the model
-generation_config = {
+
+ai_suggest = False
+
+for i in  range(len(job_descriptions)):
+        
+    generation_config = {
   "temperature": 1,
   "top_p": 0.95,
   "top_k": 40,
@@ -74,30 +80,28 @@ generation_config = {
     },
   ),
   "response_mime_type": "application/json",
-}
+    }
 
-model = genai.GenerativeModel(
-  model_name="gemini-1.5-flash-8b",
-  generation_config=generation_config,
-  system_instruction="I hold a B.Tech from NIT Calicut and have strong skills in Python, Django, React, JavaScript, SQL, cybersecurity, and machine learning. I’ve worked on projects like medical ML models, Amazon price tracking, antimicrobial peptide prediction, and Django web applications with PostgreSQL. Evaluate the following job description against my skills and experience. Provide a response with only True or False. I don't have any professional experience so only recommend jobs that don't need any experience more than 1 year.",
-)
+    model = genai.GenerativeModel(
+    model_name="gemini-1.5-flash-8b",
+    generation_config=generation_config,
+    system_instruction="I hold a B.Tech from NIT Calicut and have strong skills in Python, Django, React, JavaScript, SQL, cybersecurity, and machine learning. I’ve worked on projects like medical ML models, Amazon price tracking, antimicrobial peptide prediction, and Django web applications with PostgreSQL. Evaluate the following job description against my skills and experience. Provide a response with only True or False. I don't have any professional experience so only recommend jobs that don't need any experience. Only match jobs that strictly need python",
+    )
+    chat_session = model.start_chat(
+    history=[
+    ]
+    )
 
-chat_session = model.start_chat(
-  history=[
-  ]
-)
 
-ai_suggest = False
-
-for i in  range(len(job_descriptions)):
     response = chat_session.send_message(job_descriptions[i])
+    # print(json.loads(response.text)["response"])
     if bool(json.loads(response.text)["response"]):
         ai_suggest = True
         markdown_message += f'-  **{job_titles[i]}** by {job_companies[i]} &nbsp;&nbsp;&nbsp; [Know More]({job_urls[i]})\n\n\n\n\n\n'
+    time.sleep(5)
 
 if not ai_suggest:
     markdown_message += f'*There are no AI picked jobs for you today*'
-
 
 
 
