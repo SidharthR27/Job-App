@@ -2,7 +2,7 @@ name: run main.py
 
 on:
   schedule:
-    - cron: '1 12 * * *' # At 09:01.
+    - cron: '*/10 * * * *' # At 09:01.
 
 jobs:
   build:
@@ -25,4 +25,5 @@ jobs:
       - name: execute py script # run main.py
         env:
           my_password: ${{ secrets.my_password }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python main.py
