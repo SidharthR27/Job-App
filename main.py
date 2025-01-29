@@ -13,22 +13,23 @@ from google.ai.generativelanguage_v1beta.types import content
 import json
 
 today = datetime.now()
-print(today)
+# print(today)
 formatted_date = today.strftime("%Y-%m-%d")
 new_jobs = False
 
-header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0"
-          }
 
-response1 = requests.get(url="https://technopark.org/api/paginated-jobs?page=1&search=&type=", headers=header)
-response2 = requests.get(url="https://technopark.org/api/paginated-jobs?page=2&search=&type=", headers=header)
-all_jobs = response1.json()["data"] + response2.json()["data"]
+# get latest jobs from Technopark api
+header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0"}
+
+page1_jobs = requests.get(url="https://technopark.org/api/paginated-jobs?page=1&search=&type=", headers=header)
+page2_jobs = requests.get(url="https://technopark.org/api/paginated-jobs?page=2&search=&type=", headers=header)
+all_jobs = page1_jobs.json()["data"] + page2_jobs.json()["data"]
 
 job_titles = []
 job_urls = []
 job_companies = []
 
-
+# add the job details to array and also add the markdown message for the mail
 markdown_message = f"# Here are all the jobs posted on Technopark Trivandrum Today ({today.strftime('%d-%m-%Y')}) 💁‍♀️: \n"
 for job in all_jobs:
     if job["posted_date"] == formatted_date:
@@ -45,6 +46,7 @@ markdown_message += "<div> <br><br> </div>"
 markdown_message += f"# AI suggestions personalised for you :\n\n"
 job_descriptions = []
 
+# get job details from each urls and scraping to find the necessary details to feed to AI
 for job_url in job_urls:
     response = requests.get(url=job_url, headers=header)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -62,11 +64,12 @@ genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
 ai_suggest = False
 
+# going through all the job descriptions and getting AI response for each.
 for i in  range(len(job_descriptions)):
         
     generation_config = {
-  "temperature": 1,
-  "top_p": 0.95,
+  "temperature": .2,
+  "top_p": 0.2,
   "top_k": 40,
   "max_output_tokens": 8192,
   "response_schema": content.Schema(
@@ -104,9 +107,10 @@ if not ai_suggest:
     markdown_message += f'*There are no AI picked jobs for you today*'
 
 
-
+# convert the markdown message to HTML
 html_content = markdown.markdown(markdown_message)
 
+# send mails if there are new jobs today
 if new_jobs:
     my_email = "sidr272002@gmail.com"
     my_password = os.environ["my_password"]
@@ -130,7 +134,7 @@ if new_jobs:
             connection.sendmail(from_addr=my_email, to_addrs="sidharthr333@gmail.com", msg=message.as_string())
         print("Email sent successfully!")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An error occurred when sending mail: {e}")
 
-if not new_jobs:
-    print("No new jobs..")
+else:
+    print("No new jobs today, exiting...")
