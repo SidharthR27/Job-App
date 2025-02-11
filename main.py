@@ -86,7 +86,7 @@ for i in  range(len(job_descriptions)):
     }
 
     model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash-8b",
+    model_name="gemini-2.0-flash",
     generation_config=generation_config,
     system_instruction="I hold a B.Tech from NIT Calicut and have strong skills in Python, Django, React, JavaScript, SQL, cybersecurity, and machine learning. I’ve worked on projects like medical ML models, Amazon price tracking, antimicrobial peptide prediction, and Django web applications with PostgreSQL. Evaluate the following job description against my skills and experience. Provide a response with only True or False. I don't have any professional experience so only recommend jobs that don't need any experience. Only match jobs that strictly need python",
     )
