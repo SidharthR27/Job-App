@@ -86,7 +86,7 @@ for i in  range(len(job_descriptions)):
     }
 
     model = genai.GenerativeModel(
-    model_name="gemini-2.0-flash",
+    model_name="gemini-2.5-flash-preview-05-20",
     generation_config=generation_config,
     system_instruction="I hold a B.Tech from NIT Calicut and have strong skills in Python, Django, React, JavaScript, SQL, cybersecurity, and machine learning. I’ve worked on projects like medical ML models, Amazon price tracking, antimicrobial peptide prediction, and Django web applications with PostgreSQL. Evaluate the following job description against my skills and experience. Provide a response with only True or False. I don't have any professional experience so only recommend jobs that don't need any experience. Only match jobs that strictly need python",
     )
@@ -101,7 +101,7 @@ for i in  range(len(job_descriptions)):
     if bool(json.loads(response.text)["response"]):
         ai_suggest = True
         markdown_message += f'-  **{job_titles[i]}** by {job_companies[i]} &nbsp;&nbsp;&nbsp; [Know More]({job_urls[i]})\n\n\n\n\n\n'
-    time.sleep(5)
+    time.sleep(7)
 
 if not ai_suggest:
     markdown_message += f'*There are no AI picked jobs for you today*'
