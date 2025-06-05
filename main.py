@@ -101,7 +101,7 @@ for i in  range(len(job_descriptions)):
     if bool(json.loads(response.text)["response"]):
         ai_suggest = True
         markdown_message += f'-  **{job_titles[i]}** by {job_companies[i]} &nbsp;&nbsp;&nbsp; [Know More]({job_urls[i]})\n\n\n\n\n\n'
-    time.sleep(7)
+    time.sleep(10)
 
 if not ai_suggest:
     markdown_message += f'*There are no AI picked jobs for you today*'
